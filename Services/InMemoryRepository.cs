@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using MoviesAPI.Entities;
 
 namespace MoviesAPI.Services
@@ -19,6 +20,11 @@ namespace MoviesAPI.Services
         public List<Genre> GetAllGenres()
         {
             return _genres;
+        }
+
+        public Genre GetGenreById(int id)
+        {
+            return _genres.FirstOrDefault(x => x.Id == id);
         }
     }
 }
