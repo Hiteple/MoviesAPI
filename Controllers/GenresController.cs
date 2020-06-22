@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -23,8 +24,8 @@ namespace MoviesAPI.Controllers
             return await _repository.GetAllGenres();
         }
 
-        [HttpGet("{id:int}")]
-        public ActionResult<Genre> Get(int id, [FromServices] string param2)
+        [HttpGet("{id:int}", Name = "getGenre")]
+        public ActionResult<Genre> Get(int id)
         {
             var genre = _repository.GetGenreById(id);
 
@@ -38,9 +39,12 @@ namespace MoviesAPI.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Genre genre)
         {
-            return NoContent();
+            _repository.AddGenre(genre);
+            
+            // Return the object created and the url for the created resource in the headers
+            return new CreatedAtRouteResult("getGenre", new { genre.Id }, genre);
         }
-
+        
         [HttpPut]
         public ActionResult Put([FromBody] Genre genre)
         {

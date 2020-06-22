@@ -12,8 +12,10 @@ namespace MoviesAPI.Entities
         [Required(ErrorMessage = "The field with name {0} is required")]
         [StringLength(10)]
         //[FirstLetterUppercase]
+        
         public string Name { get; set; }
 
+        /*
         [Range(18, 120)]
         public int Age { get; set; }
         
@@ -22,6 +24,7 @@ namespace MoviesAPI.Entities
         
         [Url]
         public string Url { get; set; }
+        */
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
