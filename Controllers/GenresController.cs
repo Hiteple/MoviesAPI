@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MoviesAPI.Entities;
 using MoviesAPI.Services;
@@ -17,13 +18,13 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Genre>> Get()
+        public async Task<ActionResult<List<Genre>>> Get()
         {
-            return _repository.GetAllGenres();
+            return await _repository.GetAllGenres();
         }
 
         [HttpGet("{id:int}")]
-        public ActionResult<Genre> Get(int id)
+        public ActionResult<Genre> Get(int id, [FromServices] string param2)
         {
             var genre = _repository.GetGenreById(id);
 
@@ -35,13 +36,13 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post()
+        public ActionResult Post([FromBody] Genre genre)
         {
             return NoContent();
         }
 
         [HttpPut]
-        public ActionResult Put()
+        public ActionResult Put([FromBody] Genre genre)
         {
             return NoContent();
         }
