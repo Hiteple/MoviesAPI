@@ -1,16 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MoviesAPI.Entities;
 
 namespace MoviesAPI.Services
 {
     public class InMemoryRepository: IRepository
     {
+        private readonly ILogger<InMemoryRepository> _logger;
         private List<Genre> _genres;
         
-        public InMemoryRepository()
+        public InMemoryRepository(ILogger<InMemoryRepository> logger)
         {
+            _logger = logger;
             _genres = new List<Genre>()
             {
                 new Genre() {Id = 1, Name = "Comedy"},
@@ -20,6 +23,7 @@ namespace MoviesAPI.Services
 
         public async Task<List<Genre>> GetAllGenres()
         {
+            _logger.LogInformation("Executing GetAllGenres...");
             await Task.Delay(3000);
             return _genres;
         }
