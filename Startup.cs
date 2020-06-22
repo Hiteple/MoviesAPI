@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -31,8 +33,29 @@ namespace MoviesAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            // Middleware for logging every single body in the terminal
+            app.Use(async (context, next) =>
+            {
+                using (var swapStream = new MemoryStream())
+                {
+                    var originalResponseBody = context.Response.Body;
+                    context.Response.Body = swapStream;
+
+                    await next.Invoke();
+
+                    swapStream.Seek(0, SeekOrigin.Begin);
+                    string responseBody = new StreamReader(swapStream).ReadToEnd();
+                    swapStream.Seek(0, SeekOrigin.Begin);
+
+                    await swapStream.CopyToAsync(originalResponseBody);
+                    context.Response.Body = originalResponseBody;
+                    
+                    logger.LogInformation(responseBody);
+                }
+            });
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
