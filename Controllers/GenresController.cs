@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MoviesAPI.Entities;
+using MoviesAPI.Filters;
 using MoviesAPI.Services;
 
 namespace MoviesAPI.Controllers
@@ -25,7 +26,8 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpGet]
-        [ResponseCache(Duration = 60)]
+        //[ResponseCache(Duration = 60)]
+        [ServiceFilter(typeof(MyActionFilter))]
         public async Task<ActionResult<List<Genre>>> Get()
         {
             
@@ -42,6 +44,7 @@ namespace MoviesAPI.Controllers
             if (genre == null)
             {
                 _logger.LogWarning($"Genre with id {id} not found");
+                //throw new ApplicationException();
                 return NotFound();
             }
             return genre;
