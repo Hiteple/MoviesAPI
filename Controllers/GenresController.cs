@@ -32,7 +32,6 @@ namespace MoviesAPI.Controllers
         {
             
             var genres = await _repository.GetAllGenres();
-            _logger.LogInformation("Genres obtained!");
             return genres;
         }
 
@@ -43,7 +42,6 @@ namespace MoviesAPI.Controllers
 
             if (genre == null)
             {
-                _logger.LogWarning($"Genre with id {id} not found");
                 //throw new ApplicationException();
                 return NotFound();
             }
