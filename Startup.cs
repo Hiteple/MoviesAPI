@@ -37,7 +37,6 @@ namespace MoviesAPI
                 .AddXmlDataContractSerializerFormatters();
             services.AddResponseCaching();
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
-            services.AddSingleton<IRepository, InMemoryRepository>();
             services.AddTransient<MyActionFilter>();
             //services.AddTransient<IHostedService, WriteToFileHostedService>();
         }

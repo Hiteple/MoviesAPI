@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoviesAPI.Entities;
 using MoviesAPI.Filters;
@@ -16,13 +18,13 @@ namespace MoviesAPI.Controllers
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GenresController: ControllerBase
     {
-        private readonly IRepository _repository;
         private readonly ILogger _logger;
+        private readonly ApplicationDbContext _context;
 
-        public GenresController(IRepository repository, ILogger<GenresController> logger)
+        public GenresController(ILogger<GenresController> logger, ApplicationDbContext context)
         {
-            _repository = repository;
             _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
@@ -31,14 +33,14 @@ namespace MoviesAPI.Controllers
         public async Task<ActionResult<List<Genre>>> Get()
         {
             
-            var genres = await _repository.GetAllGenres();
+            var genres = await _context.Genres.AsNoTracking().ToListAsync();
             return genres;
         }
 
         [HttpGet("{id:int}", Name = "getGenre")]
-        public ActionResult<Genre> Get(int id)
+        public async Task<ActionResult<Genre>> Get(int id)
         {
-            var genre = _repository.GetGenreById(id);
+            var genre = await _context.Genres.FirstOrDefaultAsync(x => x.Id == id);
 
             if (genre == null)
             {
@@ -49,9 +51,10 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] Genre genre)
+        public async Task<ActionResult> Post([FromBody] Genre genre)
         {
-            _repository.AddGenre(genre);
+            _context.Add(genre);
+            await _context.SaveChangesAsync();
             
             // Return the object created and the url for the created resource in the headers
             return new CreatedAtRouteResult("getGenre", new { genre.Id }, genre);
