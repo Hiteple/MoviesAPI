@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,8 +34,12 @@ namespace MoviesAPI
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            
+            services.AddAutoMapper(typeof(Startup));
+            
             services.AddControllers(options => { options.Filters.Add(typeof(MyExceptionFilter)); })
                 .AddXmlDataContractSerializerFormatters();
+            
             services.AddResponseCaching();
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.AddTransient<MyActionFilter>();
