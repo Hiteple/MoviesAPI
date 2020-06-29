@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
@@ -98,6 +97,42 @@ namespace MoviesAPI.Controllers
             }
 
             await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<PersonPatchDTO> patchDocument)
+        {
+            if (patchDocument == null)
+            {
+                return BadRequest();
+            }
+
+            var entityFromDb = await _context.Persons.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entityFromDb == null)
+            {
+                return NotFound();
+            }
+
+            // Map the entity from the DB to the PersonPatchDTO
+            var entityDto = _mapper.Map<PersonPatchDTO>(entityFromDb);
+            
+            patchDocument.ApplyTo(entityDto, ModelState);
+
+            // Try to validate that the model has not business logic problems
+            var isValid = TryValidateModel(entityDto);
+
+            if (!isValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Now, map to the entity to entityDB
+            _mapper.Map(entityDto, entityFromDb);
+
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
 

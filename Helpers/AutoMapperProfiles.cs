@@ -19,6 +19,8 @@ namespace MoviesAPI.Helpers
             // Same here but I need to ignore the Picture property
             CreateMap<PersonCreationDTO, Person>()
                 .ForMember(x => x.Picture, options => options.Ignore());
+
+            CreateMap<Person, PersonPatchDTO>().ReverseMap();
         }
     }
 }
