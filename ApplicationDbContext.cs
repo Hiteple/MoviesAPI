@@ -11,5 +11,6 @@ namespace MoviesAPI
         }
         
         public DbSet<Genre> Genres { get; set; }
+        public DbSet<Person> Persons { get; set; }
     }
 }
