@@ -44,6 +44,7 @@ namespace MoviesAPI
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.AddTransient<MyActionFilter>();
             //services.AddTransient<IHostedService, WriteToFileHostedService>();
+            services.AddTransient<IFileStorageService, AzureStorageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
