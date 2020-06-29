@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
+using MoviesAPI.Helpers;
 using MoviesAPI.Services;
 
 namespace MoviesAPI.Controllers
@@ -28,9 +29,12 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<PersonDTO>>> Get()
+        public async Task<ActionResult<List<PersonDTO>>> Get([FromQuery] PaginationDTO paginationDto)
         {
-            var people = await _context.Persons.ToListAsync();
+            var queryable = _context.Persons.AsQueryable();
+            await HttpContext.InsertPaginationParametersInResponse(queryable, paginationDto.RecordsPerPage);
+
+            var people = await queryable.Paginate(paginationDto).ToListAsync();
             
             return _mapper.Map<List<PersonDTO>>(people);
         }
