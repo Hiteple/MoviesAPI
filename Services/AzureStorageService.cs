@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
@@ -15,14 +16,29 @@ namespace MoviesAPI.Services
             _connectionString = configuration.GetConnectionString("AzureStorageConnection");
         }
         
-        public Task<string> EditFile(byte[] content, string extension, string containerName, string fileRoute, string contentType)
+        public async Task<string> EditFile(byte[] content, string extension, string containerName, string fileRoute, string contentType)
         {
-            throw new System.NotImplementedException();
+            await DeleteFile(fileRoute, containerName);
+            return await SaveFile(content, extension, containerName, contentType);
         }
 
-        public Task DeleteFile(string fileRoute, string containerName)
+        public async Task DeleteFile(string fileRoute, string containerName)
         {
-            throw new System.NotImplementedException();
+            if (fileRoute != null)
+            {
+                var account = CloudStorageAccount.Parse(_connectionString);
+                var client = account.CreateCloudBlobClient();
+                var container = client.GetContainerReference(containerName);
+
+                // Get the blob name
+                var blobName = Path.GetFileName(fileRoute);
+            
+                // Get blob reference
+                var blob = container.GetBlobReference(blobName);
+            
+                // Delete the blob
+                await blob.DeleteIfExistsAsync();
+            }
         }
 
         public async Task<string> SaveFile(byte[] content, string extension, string containerName, string contentType)

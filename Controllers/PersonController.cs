@@ -72,5 +72,48 @@ namespace MoviesAPI.Controllers
             
             return new CreatedAtRouteResult("getPerson", new { person.Id, personDto });
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(int id, [FromForm] PersonCreationDTO personCreationDto)
+        {
+            var personDb = await _context.Persons.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (personDb == null)
+            {
+                return NotFound();
+            }
+
+            // Update the file only if it comes in the request
+            personDb = _mapper.Map(personCreationDto, personDb);
+            if (personCreationDto.Picture != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await personCreationDto.Picture.CopyToAsync(memoryStream);
+                    var content = memoryStream.ToArray();
+                    var extension = Path.GetExtension(personCreationDto.Picture.FileName);
+                    var contentType = personCreationDto.Picture.ContentType;
+                    personDb.Picture = await _fileStorageService.EditFile(content, extension, _containerName, personDb.Picture, contentType);
+                }   
+            }
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var exists = await _context.Persons.AnyAsync(x => x.Id == id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            _context.Remove(new Person() {Id = id});
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
