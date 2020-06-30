@@ -5,11 +5,10 @@ using MoviesAPI.Validations;
 
 namespace MoviesAPI.DTOs
 {
-    public class PersonCreationDTO: PersonPatchDTO
+    public class MovieCreationDTO: MoviePatchDTO
     {
-
         [FileSize(4)]
         [ContentType(ContentTypeGroup.Image)]
-        public IFormFile Picture { get; set; }
+        public IFormFile Poster { get; set; }
     }
 }
