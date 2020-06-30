@@ -66,10 +66,23 @@ namespace MoviesAPI.Controllers
                 }   
             }
 
+            AnnotateActorsOrder(movie);
+
             _context.Add(movie);
             await _context.SaveChangesAsync();
             var movieDto = _mapper.Map<MovieDTO>(movie);
             return new CreatedAtRouteResult("getMovie", new { id = movie.Id }, movieDto);
+        }
+
+        private static void AnnotateActorsOrder(Movie movie)
+        {
+            if (movie.MoviesActors != null)
+            {
+                for (int i = 0; i < movie.MoviesActors.Count; i++)
+                {
+                    movie.MoviesActors[i].Order = i;
+                }
+            }
         }
 
         [HttpPut("{id}")]
@@ -92,9 +105,14 @@ namespace MoviesAPI.Controllers
                     var extension = Path.GetExtension(movieCreationDto.Poster.FileName);
                     var contentType = movieCreationDto.Poster.ContentType;
                     movieDb.Poster = await _fileStorageService.EditFile(content, extension, _containerName, movieDb.Poster, contentType);
-                }   
+                }
             }
 
+            await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"deleted from MoviesActors where movieId = {movieDb.Id}; deleted from MoviesGenres where movieId = {movieDb.Id}");
+            
+            AnnotateActorsOrder(movieDb);
+            
             await _context.SaveChangesAsync();
             return NoContent();
         }
